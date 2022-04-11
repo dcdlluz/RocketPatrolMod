@@ -107,7 +107,7 @@ class Play extends Phaser.Scene {
           }
           if (this.checkCollision(this.p1Rocket, this.ship01)) {
             this.p1Rocket.reset();
-            this.shipExplode(this.ship01);
+            this.shipExplode(this.ship01); 
           }
         }
       }
@@ -142,3 +142,4 @@ class Play extends Phaser.Scene {
       this.sound.play('sfx_explosion');          
     }
 }
+//pls work
