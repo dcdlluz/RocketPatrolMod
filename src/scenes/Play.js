@@ -143,3 +143,4 @@ class Play extends Phaser.Scene {
     }
 }
 //pls work
+//pls work x2
