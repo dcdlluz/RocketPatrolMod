@@ -73,6 +73,13 @@ class Play extends Phaser.Scene {
         }
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, this.p1Score, scoreConfig);
         
+        // initialize timer
+        this.p1Timer = 60;
+
+        // display timer
+        this.timerRight = this.add.text(game.config.width - borderPadding*13, borderUISize + borderPadding*2, this.p1Timer, scoreConfig);
+
+
         // GAME OVER flag
         this.gameOver = false;
         
@@ -87,6 +94,10 @@ class Play extends Phaser.Scene {
       
 
     update() {
+        console.log(60 - this.time.now/1000);
+        this.p1Timer = 60 - this.time.now/1000; 
+        this.timerRight.text = this.p1Timer;
+
         // check key input for restart
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyR)) {
           this.scene.restart();
