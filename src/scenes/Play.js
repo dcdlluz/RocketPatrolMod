@@ -6,18 +6,27 @@ class Play extends Phaser.Scene {
     preload() {
         // load images/tile sprites 
         this.load.image('rocket', './assets/rocket.png');
-        this.load.image('spaceship', './assets/spaceship.png');
-        this.load.image('starfield', './assets/starfield.png');
+        this.load.image('ghost', './assets/ghost.png');
+        this.load.image('stars', './assets/stars.png');
+        this.load.image('clouds', './assets/clouds.png');
+        this.load.image('floor','./assets/floor.png');
+        this.load.image('sky', './assets/sky.png');
         // load spritesheet
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
       }
 
     create() {
         // place tile sprite
-        this.starfield = this.add.tileSprite(0, 0, 640, 480, 'starfield').setOrigin(0, 0);
+        this.sky = this.add.tileSprite(0, 0, 640, 480, 'sky').setOrigin(0, 0);
+        // place floor tile sprite
+        this.floor = this.add.tileSprite(0, 0, 640, 480, 'floor').setOrigin(0, 0);
+        //place tile sprite stars
+        this.stars = this.add.tileSprite(0, 0, 640, 480, 'stars').setOrigin(0, 0);
+        // place tile sprite clouds
+        this.clouds = this.add.tileSprite(0, 0, 640, 480, 'clouds').setOrigin(0, 0);
 
         // green UI background
-        this.add.rectangle(0, borderUISize + borderPadding, game.config.width, borderUISize * 2, 0x00FF00).setOrigin(0, 0);
+        //this.add.rectangle(0, borderUISize + borderPadding, game.config.width, borderUISize * 2, 0x00FF00).setOrigin(0, 0);
         
         // white borders
         this.add.rectangle(0, 0, game.config.width, borderUISize, 0xFFFFFF).setOrigin(0, 0);
@@ -28,10 +37,10 @@ class Play extends Phaser.Scene {
         // add rocket (p1)
         this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket').setOrigin(0.5, 0);
         
-        // add spaceships (x3)
-        this.ship01 = new Spaceship(this, game.config.width + borderUISize*6, borderUISize*4, 'spaceship', 0, 30).setOrigin(0, 0);
-        this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, 'spaceship', 0, 20).setOrigin(0,0);
-        this.ship03 = new Spaceship(this, game.config.width, borderUISize*6 + borderPadding*4, 'spaceship', 0, 10).setOrigin(0,0);
+        // add ghosts (x3)
+        this.ghost01 = new Ghost(this, game.config.width + borderUISize*6, borderUISize*4, 'ghost', 0, 30).setOrigin(0, 0);
+        this.ghost02 = new Ghost(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, 'ghost', 0, 20).setOrigin(0,0);
+        this.ghost03 = new Ghost(this, game.config.width, borderUISize*6 + borderPadding*4, 'ghost', 0, 10).setOrigin(0,0);
         
         // define keys
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
@@ -87,56 +96,59 @@ class Play extends Phaser.Scene {
           this.scene.start("menuScene");
         }
 
-        this.starfield.tilePositionX -= 4;        // update tile sprite
+        //this.sky.tilePositionX -= 4;        // update tile sprite
+        this.clouds.tilePositionX -= 4;     // update clouds tile sprite
+        this.stars.tilePositionX -= 2;      // update stars tile sprite
+        this.floor.tilePositionX -= 1;      // update floor tile sprite
 
         if (!this.gameOver) {   
           this.p1Rocket.update();                   // update p1
-          // update spaceships (x3)
-          this.ship01.update();               
-          this.ship02.update();
-          this.ship03.update();
+          // update ghost (x3)
+          this.ghost01.update();               
+          this.ghost02.update();
+          this.ghost03.update();
           
           // check collisions
-          if(this.checkCollision(this.p1Rocket, this.ship03)) {
+          if(this.checkCollision(this.p1Rocket, this.ghost03)) {
             this.p1Rocket.reset();
-            this.shipExplode(this.ship03);
+            this.ghostExplode(this.ghost03);
           }
-          if (this.checkCollision(this.p1Rocket, this.ship02)) {
+          if (this.checkCollision(this.p1Rocket, this.ghost02)) {
             this.p1Rocket.reset();
-            this.shipExplode(this.ship02);
+            this.ghostExplode(this.ghost02);
           }
-          if (this.checkCollision(this.p1Rocket, this.ship01)) {
+          if (this.checkCollision(this.p1Rocket, this.ghost01)) {
             this.p1Rocket.reset();
-            this.shipExplode(this.ship01); 
+            this.ghostExplode(this.ghost01); 
           }
         }
       }
 
-      checkCollision(rocket, ship) {
+      checkCollision(rocket, ghost) {
         // simple AABB checking
-        if (rocket.x < ship.x + ship.width && 
-            rocket.x + rocket.width > ship.x && 
-            rocket.y < ship.y + ship.height &&
-            rocket.height + rocket.y > ship. y) {
+        if (rocket.x < ghost.x + ghost.width && 
+            rocket.x + rocket.width > ghost.x && 
+            rocket.y < ghost.y + ghost.height &&
+            rocket.height + rocket.y > ghost. y) {
                 return true;
         } else {
             return false;
         }
     }
 
-    shipExplode(ship) {
-      // temporarily hide ship
-      ship.alpha = 0;
-      // create explosion sprite at ship's position
-      let boom = this.add.sprite(ship.x, ship.y, 'explosion').setOrigin(0, 0);
+    ghostExplode(ghost) {
+      // temporarily hide ghost
+      ghost.alpha = 0;
+      // create explosion sprite at ghost's position
+      let boom = this.add.sprite(ghost.x, ghost.y, 'explosion').setOrigin(0, 0);
       boom.anims.play('explode');             // play explode animation
       boom.on('animationcomplete', () => {    // callback after anim completes
-        ship.reset();                         // reset ship position
-        ship.alpha = 1;                       // make ship visible again
+        ghost.reset();                         // reset ghost position
+        ghost.alpha = 1;                       // make ghost visible again
         boom.destroy();                       // remove explosion sprite
       });
       // score add and repaint
-      this.p1Score += ship.points;
+      this.p1Score += ghost.points;
       this.scoreLeft.text = this.p1Score;
       // explosion sound
       this.sound.play('sfx_explosion');          
