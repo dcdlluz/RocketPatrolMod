@@ -5,7 +5,7 @@ class Play extends Phaser.Scene {
 
     preload() {
         // load images/tile sprites 
-        this.load.image('rocket', './assets/rocket.png');
+        this.load.image('heart', './assets/heart.png');
         this.load.image('ghost', './assets/ghost.png');
         this.load.image('stars', './assets/stars.png');
         this.load.image('clouds', './assets/clouds.png');
@@ -13,6 +13,8 @@ class Play extends Phaser.Scene {
         this.load.image('sky', './assets/sky.png');
         // load spritesheet
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
+        // load spritesheet
+        this.load.spritesheet('bunny', './assets/bunny.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 6});
       }
 
     create() {
@@ -35,18 +37,26 @@ class Play extends Phaser.Scene {
         // this.add.rectangle(game.config.width - borderUISize, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0, 0);
         
         // add rocket (p1)
-        this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'rocket').setOrigin(0.5, 0);
+        this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'heart').setOrigin(0.5, 0);
         
         // add ghosts (x3)
-        this.ghost01 = new Ghost(this, game.config.width + borderUISize*6, borderUISize*4, 'ghost', 0, 30).setOrigin(0, 0);
-        this.ghost02 = new Ghost(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, 'ghost', 0, 20).setOrigin(0,0);
-        this.ghost03 = new Ghost(this, game.config.width, borderUISize*6 + borderPadding*4, 'ghost', 0, 10).setOrigin(0,0);
+        this.bunny01 = new Bunny(this, game.config.width + borderUISize*6, borderUISize*4, 'bunny', 0, 30).setOrigin(0, 0);
+        this.bunny02 = new Bunny(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, 'bunny', 0, 20).setOrigin(0,0);
+        this.bunny03 = new Bunny(this, game.config.width, borderUISize*6 + borderPadding*4, 'bunny', 0, 10).setOrigin(0,0);
         
         // define keys
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+
+        // bunny animation config
+        this.anims.create({
+          key: 'bunny',
+          frames: this.anims.generateFrameNumbers('bunny', { start: 0, end: 6, first: 0}),
+          frameRate: 30,
+          repeat: -1
+        });
         
         // animation config
         this.anims.create({
@@ -62,8 +72,8 @@ class Play extends Phaser.Scene {
         let scoreConfig = {
           fontFamily: 'Courier',
           fontSize: '28px',
-          backgroundColor: '#F3B141',
-          color: '#843605',
+          backgroundColor: '#9160A9',
+          color: 'pink',
           align: 'right',
           padding: {
             top: 5,
@@ -94,7 +104,7 @@ class Play extends Phaser.Scene {
       
 
     update() {
-        console.log(60 - this.time.now/1000);
+        //console.log(60 - this.time.now/1000);
         this.p1Timer = 60 - this.time.now/1000; 
         this.timerRight.text = this.p1Timer;
 
@@ -110,56 +120,56 @@ class Play extends Phaser.Scene {
         //this.sky.tilePositionX -= 4;        // update tile sprite
         this.clouds.tilePositionX -= 4;     // update clouds tile sprite
         this.stars.tilePositionX -= 2;      // update stars tile sprite
-        this.floor.tilePositionX -= 1;      // update floor tile sprite
+        this.floor.tilePositionX -= -1;      // update floor tile sprite
 
         if (!this.gameOver) {   
           this.p1Rocket.update();                   // update p1
           // update ghost (x3)
-          this.ghost01.update();               
-          this.ghost02.update();
-          this.ghost03.update();
+          this.bunny01.update();               
+          this.bunny02.update();
+          this.bunny03.update();
           
           // check collisions
-          if(this.checkCollision(this.p1Rocket, this.ghost03)) {
+          if(this.checkCollision(this.p1Rocket, this.bunny03)) {
             this.p1Rocket.reset();
-            this.ghostExplode(this.ghost03);
+            this.bunnyExplode(this.bunny03);
           }
-          if (this.checkCollision(this.p1Rocket, this.ghost02)) {
+          if (this.checkCollision(this.p1Rocket, this.bunny02)) {
             this.p1Rocket.reset();
-            this.ghostExplode(this.ghost02);
+            this.bunnyExplode(this.bunny02);
           }
-          if (this.checkCollision(this.p1Rocket, this.ghost01)) {
+          if (this.checkCollision(this.p1Rocket, this.bunny01)) {
             this.p1Rocket.reset();
-            this.ghostExplode(this.ghost01); 
+            this.bunnyExplode(this.bunny01); 
           }
         }
       }
 
-      checkCollision(rocket, ghost) {
+      checkCollision(rocket, bunny) {
         // simple AABB checking
-        if (rocket.x < ghost.x + ghost.width && 
-            rocket.x + rocket.width > ghost.x && 
-            rocket.y < ghost.y + ghost.height &&
-            rocket.height + rocket.y > ghost. y) {
+        if (rocket.x < bunny.x + bunny.width && 
+            rocket.x + rocket.width > bunny.x && 
+            rocket.y < bunny.y + bunny.height &&
+            rocket.height + rocket.y > bunny.y) {
                 return true;
         } else {
             return false;
         }
     }
 
-    ghostExplode(ghost) {
-      // temporarily hide ghost
-      ghost.alpha = 0;
-      // create explosion sprite at ghost's position
-      let boom = this.add.sprite(ghost.x, ghost.y, 'explosion').setOrigin(0, 0);
+    bunnyExplode(bunny) {
+      // temporarily hide bunny
+      bunny.alpha = 0;
+      // create explosion sprite at bunny's position
+      let boom = this.add.sprite(bunny.x, bunny.y, 'explosion').setOrigin(0, 0);
       boom.anims.play('explode');             // play explode animation
       boom.on('animationcomplete', () => {    // callback after anim completes
-        ghost.reset();                         // reset ghost position
-        ghost.alpha = 1;                       // make ghost visible again
+        bunny.reset();                         // reset bunny position
+        bunny.alpha = 1;                       // make bunny visible again
         boom.destroy();                       // remove explosion sprite
       });
       // score add and repaint
-      this.p1Score += ghost.points;
+      this.p1Score += bunny.points;
       this.scoreLeft.text = this.p1Score;
       // explosion sound
       this.sound.play('sfx_explosion');          
