@@ -25,20 +25,18 @@ class Play extends Phaser.Scene {
         //place tile sprite stars
         this.stars = this.add.tileSprite(0, 0, 640, 480, 'stars').setOrigin(0, 0);
         // place tile sprite clouds
-        this.clouds = this.add.tileSprite(0, 0, 640, 480, 'clouds').setOrigin(0, 0);
-
-        // green UI background
-        //this.add.rectangle(0, borderUISize + borderPadding, game.config.width, borderUISize * 2, 0x00FF00).setOrigin(0, 0);
-        
-        // white borders
-        // this.add.rectangle(0, 0, game.config.width, borderUISize, 0xFFFFFF).setOrigin(0, 0);
-        // this.add.rectangle(0, game.config.height - borderUISize, game.config.width, borderUISize, 0xFFFFFF).setOrigin(0, 0);
-        // this.add.rectangle(0, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0, 0);
-        // this.add.rectangle(game.config.width - borderUISize, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0, 0);
-        
+        this.clouds = this.add.tileSprite(0, 0, 640, 480, 'clouds').setOrigin(0, 0);        
         // add rocket (p1)
         this.p1Rocket = new Rocket(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'heart').setOrigin(0.5, 0);
         
+        // bunny animation config
+        this.anims.create({
+          key: 'bunny',
+          frames: this.anims.generateFrameNumbers('bunny', { start: 0, end: 6, first: 0}),
+          frameRate: 12,
+          repeat: -1
+        });
+
         // add ghosts (x3)
         this.bunny01 = new Bunny(this, game.config.width + borderUISize*6, borderUISize*4, 'bunny', 0, 30).setOrigin(0, 0);
         this.bunny02 = new Bunny(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, 'bunny', 0, 20).setOrigin(0,0);
@@ -49,14 +47,6 @@ class Play extends Phaser.Scene {
         keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-
-        // bunny animation config
-        this.anims.create({
-          key: 'bunny',
-          frames: this.anims.generateFrameNumbers('bunny', { start: 0, end: 6, first: 0}),
-          frameRate: 30,
-          repeat: -1
-        });
         
         // animation config
         this.anims.create({
@@ -70,10 +60,10 @@ class Play extends Phaser.Scene {
         
         // display score
         let scoreConfig = {
-          fontFamily: 'Courier',
+          fontFamily: 'Acme',
           fontSize: '28px',
-          backgroundColor: '#9160A9',
-          color: 'pink',
+          backgroundColor: '#996ED7',
+          color: '#FDDFFD',
           align: 'right',
           padding: {
             top: 5,
@@ -83,13 +73,6 @@ class Play extends Phaser.Scene {
         }
         this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, this.p1Score, scoreConfig);
         
-        // initialize timer
-        this.p1Timer = 60;
-
-        // display timer
-        this.timerRight = this.add.text(game.config.width - borderPadding*13, borderUISize + borderPadding*2, this.p1Timer, scoreConfig);
-
-
         // GAME OVER flag
         this.gameOver = false;
         
@@ -100,12 +83,20 @@ class Play extends Phaser.Scene {
             this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', scoreConfig).setOrigin(0.5);
             this.gameOver = true;
         }, null, this);
+
+        // initialize timer
+        this.p1Timer = Math.ceil(this.clock.getRemainingSeconds());
+        console.log(this.p1Timer);
+
+        // display timer
+        this.timerRight = this.add.text(game.config.width - borderPadding*13, borderUISize + borderPadding*2, this.p1Timer, scoreConfig);
+
       }
       
 
     update() {
         //console.log(60 - this.time.now/1000);
-        this.p1Timer = 60 - this.time.now/1000; 
+        this.p1Timer = Math.ceil(this.clock.getRemainingSeconds());
         this.timerRight.text = this.p1Timer;
 
         // check key input for restart
@@ -124,7 +115,7 @@ class Play extends Phaser.Scene {
 
         if (!this.gameOver) {   
           this.p1Rocket.update();                   // update p1
-          // update ghost (x3)
+          // update bunny (x3)
           this.bunny01.update();               
           this.bunny02.update();
           this.bunny03.update();

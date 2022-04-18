@@ -4,6 +4,7 @@ class Bunny extends Phaser.GameObjects.Sprite {
          super(scene, x, y, texture, frame);
          scene.add.existing(this);         // add to existing scene
          //play
+         console.log('idoing');
          this.play('bunny');
          this.points = pointValue;         // store pointValue
          this.moveSpeed = 4;               // pixels per frame
